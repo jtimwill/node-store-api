@@ -13,16 +13,6 @@ const OrderProductModel = require('./models/order_product');
 const ShippingOptionModel = require('./models/shipping_option');
 const OrderModel = require('./models/order');
 
-app.use('/api/users', users);
-app.use('/api/reviews', reviews);
-app.use('/api/products', products);
-app.use('/api/categories', categories);
-app.use('/api/cart_products', cart_products);
-app.use('/api/order_products', order_products);
-app.use('/api/shipping_options', shipping_options);
-app.use('/api/orders', orders);
-app.use('/api/login', login);
-
 // Create sequelize instance
 if (process.env.NODE_ENV === 'production') {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
