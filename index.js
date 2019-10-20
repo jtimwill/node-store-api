@@ -23,7 +23,7 @@ app.get('/api', (req, res) => {
   res.send(`See README for API use instructions: ${url}`);
 });
 app.use(express.json());
-// app.use('/api/users', users);
+app.use('/api/users', users);
 // app.use('/api/reviews', reviews);
 // app.use('/api/products', products);
 app.use('/api/categories', categories);
