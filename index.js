@@ -30,7 +30,7 @@ app.use('/api/categories', categories);
 // app.use('/api/shipping_options', shipping_options);
 // app.use('/api/cart_products', cart_products);
 // app.use('/api/orders', orders);
-// app.use('/api/login', login);
+app.use('/api/login', login);
 
 app.use(error);
 
