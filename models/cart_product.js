@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
       autoIncrement: true
     },
     quantity: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {underscored: true});

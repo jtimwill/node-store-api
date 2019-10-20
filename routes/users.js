@@ -44,6 +44,9 @@ router.get('/me', auth, async (req, res) => {
     where: { id: req.user.id},
     attributes: { exclude: ['password_digest', 'created_at', 'updated_at'] }
   });
+  // Todo:
+  // 1. Include orders associated with user
+  // 2. Include reviews associated with user
   res.send(user);
 });
 
