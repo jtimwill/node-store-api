@@ -23,14 +23,14 @@ app.get('/api', (req, res) => {
   res.send(`See README for API use instructions: ${url}`);
 });
 app.use(express.json());
-app.use('/api/users', users);
-app.use('/api/reviews', reviews);
-app.use('/api/products', products);
+// app.use('/api/users', users);
+// app.use('/api/reviews', reviews);
+// app.use('/api/products', products);
 app.use('/api/categories', categories);
-app.use('/api/shipping_options', shipping_options);
-app.use('/api/cart_products', cart_products);
-app.use('/api/orders', orders);
-app.use('/api/login', login);
+// app.use('/api/shipping_options', shipping_options);
+// app.use('/api/cart_products', cart_products);
+// app.use('/api/orders', orders);
+// app.use('/api/login', login);
 
 app.use(error);
 
