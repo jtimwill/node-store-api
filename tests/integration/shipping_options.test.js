@@ -3,7 +3,7 @@ const createJWT = require('../../utilities/tokenUtility');
 const server = require('../../index');
 const request = require('supertest')(server);
 
-describe('/api/shipping_options', () => {
+describe('/api/shipping-options', () => {
   afterEach(async () => {
     await ShippingOption.destroy({ where: {} });
   });
@@ -17,7 +17,7 @@ describe('/api/shipping_options', () => {
 
     const response = async (jwt) => {
       return await request
-        .get('/api/shipping_options')
+        .get('/api/shipping-options')
         .set('x-auth-token', jwt);
     };
 
@@ -37,7 +37,7 @@ describe('/api/shipping_options', () => {
       expect(res.status).toBe(401);
     });
 
-    it('should return all shipping_options (stat code 200)', async () => {
+    it('should return all shipping-options (stat code 200)', async () => {
       const res = await response(token);
 
       expect(res.status).toBe(200);
@@ -56,7 +56,7 @@ describe('/api/shipping_options', () => {
 
     const response = async (id, jwt) => {
       return await request
-        .get(`/api/shipping_options/${id}`)
+        .get(`/api/shipping-options/${id}`)
         .set('x-auth-token', jwt);
     };
 
@@ -103,7 +103,7 @@ describe('/api/shipping_options', () => {
 
     const response = async (object, jwt) => {
       return await request
-        .post('/api/shipping_options')
+        .post('/api/shipping-options')
         .send(object)
         .set('x-auth-token', jwt);
     };
@@ -165,7 +165,7 @@ describe('/api/shipping_options', () => {
 
     const response = async (object, jwt, id) => {
       return await request
-        .put('/api/shipping_options/' + id)
+        .put('/api/shipping-options/' + id)
         .set('x-auth-token', jwt)
         .send(object);
     };
@@ -240,7 +240,7 @@ describe('/api/shipping_options', () => {
 
     const response = async (id, jwt) => {
       return await request
-        .delete('/api/shipping_options/' + id)
+        .delete('/api/shipping-options/' + id)
         .set('x-auth-token', jwt);
     };
 

@@ -70,7 +70,6 @@ Additional resources that helped me:
 |URL|HTTP verb|Result|Admin only?|
 |---|---|---|---|
 /api/cart_products|GET|return all cart_products|No|
-/api/cart_products|DELETE|delete all cart_products (empty cart)|No|
 /api/cart_products|POST|add a cart_product|No|
 /api/cart_products/:id|PUT|update a specific cart_product|No|
 /api/cart_products/:id|DELETE|delete a specific cart_product|No|
@@ -83,6 +82,12 @@ Additional resources that helped me:
 /api/orders/:id|GET|return a specific order and associated order_products for current user|No|
 /api/orders/:id|PUT|update a specific order and associated order_products|Yes|
 /api/orders/:id|DELETE|delete a specific order and associated order_products|Yes|
+
+### Order Products Resource
+|URL|HTTP verb|Result|Admin only?|
+|---|---|---|---|
+/api/orders/:orderId/order_products/:id|PUT|update a specific order_product|Yes|
+/api/orders/:orderId/order_products/:id|DELETE|delete a specific order_product|Yes|
 
 ### Login Resource
 |URL|HTTP verb|Result|Admin only?|

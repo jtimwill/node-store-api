@@ -44,7 +44,7 @@ OrderProduct.belongsTo(Product);
 CartProduct.belongsTo(Product);
 Category.hasMany(Product);
 ShippingOption.hasMany(Order);
-Order.hasMany(OrderProduct);
+Order.hasMany(OrderProduct, {onDelete: 'cascade'});
 
 // Create database tables
 sequelize.sync().then(() => {
@@ -58,5 +58,7 @@ module.exports = {
   Category,
   ShippingOption,
   Order,
+  OrderProduct,
+  CartProduct,
   sequelize
 };
