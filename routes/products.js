@@ -40,7 +40,7 @@ router.get('/:id', auth, async (req, res) => {
   { where: { id: req.params.id },
     include: {
       model: Review,
-      where: { product_id: id },
+      where: { productId: id },
       required: false
     }
   });

@@ -1,16 +1,19 @@
-const { UserQuiz, Quiz, User, UserAnswer, Question, Category, sequelize } = require('../../sequelize');
+const { Order, OrderProduct, Product,
+        User, Category, ShippingOption, CartProduct,
+        sequelize } = require('../../sequelize');
 const createJWT = require('../../utilities/tokenUtility');
 const server = require('../../index');
 const request = require('supertest')(server);
 
-describe('/api/user-quizzes', () => {
+describe('/api/orders', () => {
   afterEach(async () => {
-    await UserQuiz.destroy({ where: {} });
-    await Quiz.destroy({ where: {} });
+    await Order.destroy({ where: {} });
+    await OrderProduct.destroy({ where: {} });
+    await Product.destroy({ where: {} });
     await User.destroy({ where: {} });
-    await UserAnswer.destroy({ where: {} });
     await Category.destroy({ where: {} });
-    await Question.destroy({ where: {} });
+    await ShippingOption.destroy({ where: {} });
+    await CartProduct.destroy({ where: {} });
   });
 
   afterAll(async () => {
@@ -18,86 +21,55 @@ describe('/api/user-quizzes', () => {
   });
 
   describe('GET /', () => {
-    let user, other_user, token, category, quiz_1, quiz_2,
-    user_quiz_1, user_quiz_2, other_user_quiz, user_answers;
+    let user, other_user, token, category, product, shipping_option,
+    order_1, order_2, other_user_order;
 
     const response = async (jwt) => {
       return await request
-        .get('/api/user-quizzes')
+        .get('/api/orders')
         .set('x-auth-token', jwt);
     };
 
     beforeEach(async () => {
       user = await User.create({
-        name: "bob",
-        email: "bob@example.com",
-        password_digest: "123456"
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: 123456,
+        admin: true
+      });
+      other_user = await User.create({
+        username: 'tom',
+        email: 'tom@example.com',
+        password_digest: 123456,
+        admin: false
       });
       token = createJWT(user);
-      other_user = await User.create({
-        name: "binky",
-        email: "bad@bunny.com",
-        password_digest: "123456"
+      category = await Category.create({ name: 'Soda' });
+      product = await Product.create({
+        title: 'Pepsi',
+        description: 'Pepsi Soda',
+        price: 2.99,
+        small_image_path: "/",
+        large_image_path: "/",
+        categoryId: category.id,
       });
-      category = await Category.create({ name: 'School' });
-      quiz_1 = await Quiz.create({
-        title: 'Farm Animals',
-        description: 'Test your Farm Animal Knowledge',
-        difficulty: 5,
-        category_id: category.id
+      shipping_option = await ShippingOption.create({
+        title: 'standard', description: "d1", cost: 0.00
       });
-      quiz_2 = await Quiz.create({
-        title: 'Continents',
-        description: 'Test your Geography Knowledge',
-        difficulty: 10,
-        category_id: category.id
+      order_1 = await Order.create({
+        userId: user.id, shippingOptionId: shipping_option.id
       });
-      const question_1 = await Question.create({
-        question: 'What does the cow say?',
-        answer: 'Moo!'
+      order_2 = await Order.create({
+        userId: user.id, shippingOptionId: shipping_option.id
       });
-      const question_2 = await Question.create({
-        question: 'Which is the largest continent?',
-        answer: 'Asia'
-      });
-      user_quiz_1 = await UserQuiz.create({
-        score: 1.00,
-        time: 20.00,
-        quiz_id: quiz_1.id,
-        user_id: user.id
-      });
-      user_quiz_2 = await UserQuiz.create({
-        score: 0.00,
-        time: 15.00,
-        quiz_id: quiz_2.id,
-        user_id: user.id
-      });
-      other_user_quiz = await UserQuiz.create({
-        score: 1.00,
-        time: 19.00,
-        quiz_id: quiz_2.id,
-        user_id: other_user.id
+      other_user_order = await Order.create({
+        userId: other_user.id, shippingOptionId: shipping_option.id
       });
 
-      await UserAnswer.bulkCreate([
-        {
-          answer: 'Moo!',
-          correct: true,
-          user_quiz_id: user_quiz_1.id,
-          question_id: question_1.id
-        },
-        {
-          answer: 'America',
-          correct: false,
-          user_quiz_id: user_quiz_2.id,
-          question_id: question_2.id
-        },
-        {
-          answer: 'Asia',
-          correct: true,
-          user_quiz_id: other_user_quiz.id,
-          question_id: question_2.id
-        }
+      await OrderProduct.bulkCreate([
+        { orderId: order_1.id, productId: product.id, price: 9.99, quantity: 2 },
+        { orderId: order_2.id, productId: product.id, price: 5.00, quantity: 1 },
+        { orderId: other_user_order.id, productId: product.id, price: 7.00, quantity: 2 }
       ]);
     });
 
@@ -108,130 +80,106 @@ describe('/api/user-quizzes', () => {
       expect(res.status).toBe(401);
     });
 
-    it(`should return all user quizzes and associated user_answers
+    it(`should return all orders and associated order_items
         for current user only (stat code 200)`, async () => {
       const res = await response(token);
 
       expect(res.status).toBe(200);
 
-      expect(res.body.some(uq => uq.id === user_quiz_1.id)).toBeTruthy();
-      expect(res.body.some(uq => uq.id === user_quiz_2.id)).toBeTruthy();
-      expect(res.body.some(uq => uq.id === other_user_quiz.id)).toBeFalsy();
+      expect(res.body.some(o => o.id === order_1.id)).toBeTruthy();
+      expect(res.body.some(o => o.id === order_2.id)).toBeTruthy();
+      expect(res.body.some(o => o.id === other_user_order.id)).toBeFalsy();
 
-      expect(res.body.some(uq => uq.score === user_quiz_1.score)).toBeTruthy();
-      expect(res.body.some(uq => uq.score === user_quiz_2.score)).toBeTruthy();
+      expect(res.body.some(o => o.userId === order_1.userId)).toBeTruthy();
+      expect(res.body.some(o => o.userId === order_2.userId)).toBeTruthy();
+      expect(res.body.some(o => o.userId === other_user_order.userId)).toBeFalsy();
 
-      expect(res.body.some(uq => uq.time === user_quiz_1.time)).toBeTruthy();
-      expect(res.body.some(uq => uq.time === user_quiz_2.time)).toBeTruthy();
-      expect(res.body.some(uq => uq.time === other_user_quiz.time)).toBeFalsy();
+      expect(res.body.some(o => o.shippingOptionId === order_1.shippingOptionId)).toBeTruthy();
+      expect(res.body.some(o => o.shippingOptionId === order_2.shippingOptionId)).toBeTruthy();
 
-      expect(res.body.some(uq => uq.quiz_id === user_quiz_1.quiz_id)).toBeTruthy();
-      expect(res.body.some(uq => uq.quiz_id === user_quiz_2.quiz_id)).toBeTruthy();
-
-      expect(res.body.some(uq => uq.user_id === user_quiz_1.user_id)).toBeTruthy();
-      expect(res.body.some(uq => uq.user_id === user_quiz_2.user_id)).toBeTruthy();
-      expect(res.body.some(uq => uq.user_id === other_user_quiz.user_id)).toBeFalsy();
-
-      expect(res.body.some(uq => uq.user_answers.length === 1)).toBeTruthy();
-
+      expect(res.body.some(o => o.order_products.length === 1)).toBeTruthy();
       expect(res.body.length).toBe(2);
     });
   });
 
   describe('POST /', () => {
-    let user, token, user_quiz_object, quiz, question_1, question_2;
+    let user, other_user, token, order, order_object, shipping_option,
+        new_shipping_option, product, cart_product_1, cart_product_2,
+        other_cart_product;
 
     const response = async (object, jwt) => {
       return await request
-        .post('/api/user-quizzes')
+        .post('/api/orders')
         .set('x-auth-token', jwt)
         .send(object);
     };
 
     beforeEach(async () => {
       user = await User.create({
-        name: "bob",
-        email: "bob@example.com",
-        password_digest: "123456"
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: 123456,
+        admin: true
+      });
+      other_user = await User.create({
+        username: 'tom',
+        email: 'tom@example.com',
+        password_digest: 123456,
+        admin: false
       });
       token = createJWT(user);
-      const category = await Category.create({ name: 'School' });
-      quiz = await Quiz.create({
-        title: 'Farm Animals',
-        description: 'Test your Farm Animal Knowledge',
-        difficulty: 5,
-        category_id: category.id
+      category = await Category.create({ name: 'Soda' });
+      product = await Product.create({
+        title: 'Pepsi',
+        description: 'Pepsi Soda',
+        price: 2.99,
+        small_image_path: "/",
+        large_image_path: "/",
+        categoryId: category.id,
       });
-      question_1 = await Question.create({
-        question: 'What does the cow say?',
-        answer: 'Moo!',
-        quiz_id: quiz.id
+      shipping_option = await ShippingOption.create({
+        title: 'standard', description: "d1", cost: 0.00
       });
-      question_2 = await Question.create({
-        question: 'What does the pig say?',
-        answer: 'Oink!',
-        quiz_id: quiz.id
+      new_shipping_option = await ShippingOption.create({
+        title: 'one-day', description: "d2",  cost: 5.99
+      })
+      order_object = {
+        userId: user.id,
+        shippingOptionId: shipping_option.id
+      }
+      cart_product_1 = await CartProduct.create({
+        quantity: 1,
+        productId: product.id,
+        userId: user.id
       });
-      user_quiz_object = {
-        time: 12.34,
-        quiz_id: quiz.id,
-        user_id: user.id,
-        user_answers: [
-          { question_id: question_1.id, answer: "Moo!" },
-          { question_id: question_2.id, answer: "Meow!" }
-        ]
-      };
+      cart_product_2 = await CartProduct.create({
+        quantity: 3,
+        productId: product.id,
+        userId: user.id
+      });
+      other_cart_product = await CartProduct.create({
+        quantity: 2,
+        productId: product.id,
+        userId: other_user.id
+      });
     });
 
     it('should return 401 if client not logged in', async () => {
       token = '';
-      const res = await response(user_quiz_object, token);
+      const res = await response(order_object, token);
 
       expect(res.status).toBe(401);
     });
 
-    it('should return 400 if invalid quiz ID', async () => {
-      user_quiz_object.quiz_id = 'id';
-      const res = await response(user_quiz_object, token);
+    it('should return 400 if order is invalid', async () => {
+      order_object = {};
+      const res = await response(order_object, token);
 
       expect(res.status).toBe(400);
     });
 
-    it('should return 400 if quiz ID valid but quiz ID not in DB', async () => {
-      user_quiz_object.quiz_id = '10000';
-      const res = await response(user_quiz_object, token);
-
-      expect(res.status).toBe(400);
-    });
-
-    it('should return 400 if user_quiz is invalid', async () => {
-      user_quiz_object = {
-        quiz_id: quiz.id,
-        user_id: user.id,
-        user_answers: []
-      };
-      const res = await response(user_quiz_object, token);
-
-      expect(res.status).toBe(400);
-    });
-
-    it('should return 400 if any user_answer is invalid', async () => {
-      user_quiz_object = {
-        time: 12.34,
-        quiz_id: quiz.id,
-        user_id: user.id,
-        user_answers: [
-          { question_id: question_1.id, answer: "Moo!" },
-          { }
-        ]
-      };
-      const res = await response(user_quiz_object, token);
-
-      expect(res.status).toBe(400);
-    });
-
-    it('should save user_quiz and user_answers if they are valid', async () => {
-      const res = await response(user_quiz_object, token);
+    it('should save order and order_products if they are valid', async () => {
+      const res = await response(order_object, token);
       const user_quiz = await UserQuiz.findOne({ where: { time: 12.34 } });
       const user_answer_1 = await UserAnswer.findOne({ where: { answer: "Moo!" } });
       const user_answer_2 = await UserAnswer.findOne({ where: { answer: "Meow!" } });
@@ -251,8 +199,8 @@ describe('/api/user-quizzes', () => {
       expect(user_answer_2).toHaveProperty('question_id', question_2.id);
     });
 
-    it('should return user_quiz if user_quiz is valid', async () => {
-      const res = await response(user_quiz_object, token);
+    it('should return order if order is valid', async () => {
+      const res = await response(order_object, token);
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('id');
@@ -264,331 +212,241 @@ describe('/api/user-quizzes', () => {
   });
 
   describe('GET /ID', () => {
-    let user, other_user, token, category, quiz,
-    user_quiz, other_user_quiz, user_answers,
-    question_1, question_2;
+    let user, other_user, token, category, product, shipping_option, order,
+    other_user_order;
 
-    const response = async (uq_id, jwt) => {
+    const response = async (o_id, jwt) => {
       return await request
-        .get('/api/user-quizzes/' + uq_id)
+        .get('/api/orders/' + o_id)
         .set('x-auth-token', jwt);
     };
 
     beforeEach(async () => {
       user = await User.create({
-        name: "bob",
-        email: "bob@example.com",
-        password_digest: "123456"
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: 123456,
+        admin: true
+      });
+      other_user = await User.create({
+        username: 'tom',
+        email: 'tom@example.com',
+        password_digest: 123456,
+        admin: false
       });
       token = createJWT(user);
-      other_user = await User.create({
-        name: "binky",
-        email: "bad@bunny.com",
-        password_digest: "123456"
+      category = await Category.create({ name: 'Soda' });
+      product = await Product.create({
+        title: 'Pepsi',
+        description: 'Pepsi Soda',
+        price: 2.99,
+        small_image_path: "/",
+        large_image_path: "/",
+        categoryId: category.id,
       });
-      category = await Category.create({ name: 'School' });
-      quiz = await Quiz.create({
-        title: 'Farm Animals',
-        description: 'Test your Farm Animal Knowledge',
-        difficulty: 5,
-        category_id: category.id
+      shipping_option = await ShippingOption.create({
+        title: 'standard', description: "d1", cost: 0.00
       });
-      question_1 = await Question.create({
-        question: 'What does the cow say?',
-        answer: 'Moo!'
+      order = await Order.create({
+        userId: user.id, shippingOptionId: shipping_option.id
       });
-      question_2 = await Question.create({
-        question: 'What does the pig say?',
-        answer: 'Oink!'
+      other_user_order = await Order.create({
+        userId: other_user.id, shippingOptionId: shipping_option.id
       });
-      user_quiz = await UserQuiz.create({
-        score: 0.50,
-        time: 20.00,
-        quiz_id: quiz.id,
-        user_id: user.id
-      });
-      other_user_quiz = await UserQuiz.create({
-        score: 1.00,
-        time: 19.00,
-        quiz_id: quiz.id,
-        user_id: other_user.id
-      });
-      user_answers = [
-        {
-          user_quiz_id: user_quiz.id,
-          answer: "Moo!",
-          correct: true,
-          question_id: question_1.id
-        },
-        {
-          user_quiz_id: user_quiz.id,
-          answer: "Meow!",
-          correct: false,
-          question_id: question_2.id
-        },
-        {
-          user_quiz_id: other_user_quiz.id,
-          answer: "Oink!",
-          correct: true,
-          question_id: question_2.id
-        }
-      ];
-      await UserAnswer.bulkCreate(user_answers);
+
+      await OrderProduct.bulkCreate([
+        { orderId: order.id, productId: product.id, price: 9.99, quantity: 2 },
+        { orderId: order.id, productId: product.id, price: 5.00, quantity: 1 },
+        { orderId: other_user_order.id, productId: product.id, price: 7.00, quantity: 2 }
+      ]);
     });
 
     it('should return 401 if client not logged in', async () => {
       token = '';
-      const res = await response(user_quiz.id, token);
+      const res = await response(order.id, token);
 
       expect(res.status).toBe(401);
     });
 
     it('should return 403 if user is not current user', async () => {
-      const res = await response(other_user_quiz.id, token);
+      const res = await response(other_user_order.id, token);
 
       expect(res.status).toBe(403);
     });
 
-    it('should return 404 if invalid user_quiz ID', async () => {
-      const user_quiz_id = 'id';
-      const res = await response(user_quiz_id, token);
+    it('should return 404 if invalid order ID', async () => {
+      const order_id = 'id';
+      const res = await response(order_id, token);
 
       expect(res.status).toBe(404);
     });
 
-    it('should return 404 if user_quiz ID valid but user_quiz ID not in DB', async () => {
-      const user_quiz_id = '10000';
-      const res = await response(user_quiz_id, token);
+    it('should return 404 if order ID valid but order ID not in DB', async () => {
+      const order_id = '10000';
+      const res = await response(order_id, token);
 
       expect(res.status).toBe(404);
     });
 
-    it('should return user_quiz and all associated user_answers (stat code 200)', async () => {
-      const res = await response(user_quiz.id, token);
+    it('should return order and all associated order_products (stat code 200)', async () => {
+      const res = await response(order.id, token);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('id', user_quiz.id);
-      expect(res.body).toHaveProperty('score', 0.50);
-      expect(res.body).toHaveProperty('time', 20.00);
-      expect(res.body).toHaveProperty('quiz_id', quiz.id);
-      expect(res.body).toHaveProperty('user_id', user.id);
+      expect(res.body).toHaveProperty('id', order.id);
+      expect(res.body).toHaveProperty('userId', user.id);
+      expect(res.body).toHaveProperty('shippingOptionId', shipping_option.id);
 
-      expect(res.body.user_answers.length).toBe(2);
-      expect(res.body.user_answers.some(ua => ua.user_quiz_id === user_quiz.id)).toBeTruthy();
-      expect(res.body.user_answers.some(ua => ua.answer === 'Moo!')).toBeTruthy();
-      expect(res.body.user_answers.some(ua => ua.correct === true)).toBeTruthy();
-      expect(res.body.user_answers.some(ua => ua.question_id === question_1.id)).toBeTruthy();
-      expect(res.body.user_answers.some(ua => ua.answer === 'Meow!')).toBeTruthy();
-      expect(res.body.user_answers.some(ua => ua.correct === false)).toBeTruthy();
-      expect(res.body.user_answers.some(ua => ua.question_id === question_2.id)).toBeTruthy();
+      expect(res.body.order_products.length).toBe(2);
+      expect(res.body.order_products.some(op => op.price === 9.99)).toBeTruthy();
+      expect(res.body.order_products.some(op => op.price === 5.00)).toBeTruthy();
+      expect(res.body.order_products.some(op => op.price === 7.00)).toBeFalsy();
     });
   });
 
   describe('PUT /ID', () => {
-    let user, other_user, token, quiz, user_quiz_object,
-    user_quiz, other_user_quiz;
+    let user, other_user, token, order, order_object, shipping_option,
+        new_shipping_option, product;
 
-    const response = async (object, uq_id, jwt) => {
+    const response = async (object, o_id, jwt) => {
       return await request
-        .put('/api/user-quizzes/' + uq_id)
+        .put('/api/orders/' + o_id)
         .set('x-auth-token', jwt)
         .send(object);
     };
 
     beforeEach(async () => {
       user = await User.create({
-        name: "bob",
-        email: "bob@example.com",
-        password_digest: "123456",
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: 123456,
         admin: true
       });
-      token = createJWT(user);
       other_user = await User.create({
-        name: "binky",
-        email: "bad@bunny.com",
-        password_digest: "123456"
+        username: 'tom',
+        email: 'tom@example.com',
+        password_digest: 123456,
+        admin: false
       });
-      const category = await Category.create({ name: 'School' });
-      quiz = await Quiz.create({
-        title: 'Farm Animals',
-        description: 'Test your Farm Animal Knowledge',
-        difficulty: 5,
-        category_id: category.id
+      token = createJWT(user);
+      category = await Category.create({ name: 'Soda' });
+      product = await Product.create({
+        title: 'Pepsi',
+        description: 'Pepsi Soda',
+        price: 2.99,
+        small_image_path: "/",
+        large_image_path: "/",
+        categoryId: category.id,
       });
-      user_quiz = await UserQuiz.create({
-        score: 0.50,
-        time: 20.00,
-        quiz_id: quiz.id,
-        user_id: user.id
+      shipping_option = await ShippingOption.create({
+        title: 'standard', description: "d1", cost: 0.00
       });
-      other_user_quiz = await UserQuiz.create({
-        score: 1.00,
-        time: 19.00,
-        quiz_id: quiz.id,
-        user_id: other_user.id
+      new_shipping_option = await ShippingOption.create({
+        title: 'one-day', description: "d2",  cost: 5.99
+      })
+      order = await Order.create({
+        userId: user.id, shippingOptionId: shipping_option.id
       });
-      user_quiz_object = {
-        score: 1.00,
-        time: 35.00,
-        quiz_id: quiz.id
-      };
+      order_object = {
+        userId: other_user.id, shippingOptionId: new_shipping_option.id
+      }
     });
 
     it('should return 401 if client not logged in', async () => {
       token = '';
-      const res = await response(user_quiz_object, user_quiz.id, token);
+      const res = await response(order_object, order.id, token);
 
       expect(res.status).toBe(401);
-    });
-
-     it('should return 403 if user is not current user', async () => {
-      const res = await response(user_quiz_object, other_user_quiz.id, token);
-
-      expect(res.status).toBe(403);
     });
 
     it('should return 403 if user is not admin', async () => {
       user = User.build({ admin: false });
       token = createJWT(user);
-      const res = await response(user_quiz_object, user_quiz.id, token);
+      const res = await response(order_object, order.id, token);
 
       expect(res.status).toBe(403);
     });
 
-    it('should return 400 if invalid quiz ID', async () => {
-      user_quiz_object.quiz_id = 'id';
-      const res = await response(user_quiz_object, user_quiz.id, token);
-
-      expect(res.status).toBe(400);
-    });
-
-    it('should return 400 if quiz ID valid but quiz ID not in DB', async () => {
-      user_quiz_object.quiz_id = '10000';
-      const res = await response(user_quiz_object, user_quiz.id, token);
-
-      expect(res.status).toBe(400);
-    });
-
-    it('should return 404 if invalid user_quiz ID', async () => {
-      const user_quiz_id = 'id';
-      const res = await response(user_quiz_object, user_quiz_id, token);
+    it('should return 404 if invalid order ID', async () => {
+      const order_id = 'id';
+      const res = await response(order_object, order_id, token);
 
       expect(res.status).toBe(404);
     });
 
-    it('should return 404 if user_quiz ID valid but user_quiz ID not in DB', async () => {
-      const user_quiz_id = '10000';
-      const res = await response(user_quiz_object, user_quiz_id, token);
+    it('should return 404 if order ID valid but order ID not in DB', async () => {
+      const order_id = '10000';
+      const res = await response(order_object, order_id, token);
 
       expect(res.status).toBe(404);
     });
 
-    it('should return 400 if user_quiz is invalid', async () => {
-      user_quiz_object = { quiz_id: quiz.id };
-      const res = await response(user_quiz_object, user_quiz.id, token);
+    it('should return 400 if order is invalid', async () => {
+      order_object = {};
+      const res = await response(order_object, order.id, token);
 
       expect(res.status).toBe(400);
     });
 
-    it('should update user_quiz if input is valid', async () => {
-      const res = await response(user_quiz_object, user_quiz.id, token);
-      const result = await UserQuiz.findOne({ where: user_quiz_object });
+    it('should update order if input is valid', async () => {
+      const res = await response(order_object, order.id, token);
+      const result = await Order.findOne({ where: { id: order.id }});
 
-      expect(result).toHaveProperty('id', user_quiz.id);
-      expect(result).toHaveProperty('score', 1.00);
-      expect(result).toHaveProperty('time', 35.00);
-      expect(result).toHaveProperty('quiz_id', quiz.id);
-      expect(result).toHaveProperty('user_id', user.id);
+      expect(result).toHaveProperty('id', order.id);
+      expect(result).toHaveProperty('userId', other_user.id);
+      expect(result).toHaveProperty('shippingOptionId', new_shipping_option.id);
     });
 
-    it('should return updated user_quiz if it is valid', async () => {
-      const res = await response(user_quiz_object, user_quiz.id, token);
+    it('should return updated order if it is valid', async () => {
+      const res = await response(order_object, order.id, token);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('id', user_quiz.id);
-      expect(res.body).toHaveProperty('score', 1.00);
-      expect(res.body).toHaveProperty('time', 35.00);
-      expect(res.body).toHaveProperty('quiz_id', quiz.id);
-      expect(res.body).toHaveProperty('user_id', user.id);
+      expect(res.body).toHaveProperty('id', order.id);
+      expect(res.body).toHaveProperty('userId', other_user.id);
+      expect(res.body).toHaveProperty('shippingOptionId', new_shipping_option.id);
     });
   });
 
   describe('DELETE /ID', () => {
-    let user, other_user, token, category, quiz,
-    user_quiz, other_user_quiz, user_answers,
-    question_1, question_2;
+    let user, token, category, product, shipping_option, order;
 
-    const response = async (uq_id, jwt) => {
+    const response = async (o_id, jwt) => {
       return await request
-        .delete('/api/user-quizzes/' + uq_id)
+        .delete('/api/orders/' + o_id)
         .set('x-auth-token', jwt);
     };
 
     beforeEach(async () => {
       user = await User.create({
-        name: "bob",
-        email: "bob@example.com",
-        password_digest: "123456",
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: 123456,
         admin: true
       });
       token = createJWT(user);
-      other_user = await User.create({
-        name: "binky",
-        email: "bad@bunny.com",
-        password_digest: "123456"
+      category = await Category.create({ name: 'Soda' });
+      product = await Product.create({
+        title: 'Pepsi',
+        description: 'Pepsi Soda',
+        price: 2.99,
+        small_image_path: "/",
+        large_image_path: "/",
+        categoryId: category.id,
       });
-      category = await Category.create({ name: 'School' });
-      quiz = await Quiz.create({
-        title: 'Farm Animals',
-        description: 'Test your Farm Animal Knowledge',
-        difficulty: 5,
-        category_id: category.id
+      shipping_option = await ShippingOption.create({
+        title: 'standard', description: "d1", cost: 0.00
       });
-      question_1 = await Question.create({
-        question: 'What does the cow say?',
-        answer: 'Moo!'
+      order = await Order.create({
+        userId: user.id, shippingOptionId: shipping_option.id
       });
-      question_2 = await Question.create({
-        question: 'What does the pig say?',
-        answer: 'Oink!'
-      });
-      user_quiz = await UserQuiz.create({
-        score: 0.50,
-        time: 20.00,
-        quiz_id: quiz.id,
-        user_id: user.id
-      });
-      other_user_quiz = await UserQuiz.create({
-        score: 1.00,
-        time: 19.00,
-        quiz_id: quiz.id,
-        user_id: other_user.id
-      });
-      user_answers = [
-        {
-          user_quiz_id: user_quiz.id,
-          answer: "Moo!",
-          correct: true,
-          question_id: question_1.id
-        },
-        { user_quiz_id: user_quiz.id,
-          answer: "Meow!",
-          correct: false,
-          question_id: question_2.id
-        },
-        {
-          user_quiz_id: other_user_quiz.id,
-          answer: "Oink!",
-          correct: true,
-          question_id: question_2.id
-        }
-      ];
-      await UserAnswer.bulkCreate(user_answers);
+      await OrderProduct.bulkCreate([
+        { orderId: order.id, productId: product.id, price: 9.99, quantity: 2 },
+        { orderId: order.id, productId: product.id, price: 5.00, quantity: 1 }
+      ]);
     });
 
     it('should return 401 if client not logged in', async () => {
       token = '';
-      const res = await response(user_quiz.id, token);
+      const res = await response(order.id, token);
 
       expect(res.status).toBe(401);
     });
@@ -596,45 +454,43 @@ describe('/api/user-quizzes', () => {
     it('should return 403 if user is not admin', async () => {
       user = User.build({ admin: false });
       token = createJWT(user);
-      const res = await response(user_quiz.id, token);
+      const res = await response(order.id, token);
 
       expect(res.status).toBe(403);
     });
 
-    it('should return 404 if invalid user_quiz ID', async () => {
-      const user_quiz_id = 'id';
-      const res = await response(user_quiz_id, token);
+    it('should return 404 if invalid order ID', async () => {
+      const order_id = 'id';
+      const res = await response(order_id, token);
 
       expect(res.status).toBe(404);
     });
 
-    it('should return 404 if user_quiz ID valid but user_quiz ID not in DB', async () => {
-      const user_quiz_id = '10000';
-      const res = await response(user_quiz_id, token);
+    it('should return 404 if order ID valid but order ID not in DB', async () => {
+      const order_id = '10000';
+      const res = await response(order_id, token);
 
       expect(res.status).toBe(404);
     });
 
-    it('should delete user_quiz and associated user_answers if input is valid', async () => {
-      const res = await response(user_quiz.id, token);
-      const returned_user_quiz = await UserQuiz.findById(user_quiz.id);
-      const returned_user_answers = await UserAnswer.findAll({
-        where: { user_quiz_id: user_quiz.id }
+    it('should delete order and associated order_products if input is valid', async () => {
+      const res = await response(order.id, token);
+      const returned_order = await Order.findOne({ where: { id: order.id }});
+      const returned_order_products = await OrderProduct.findAll({
+        where: { orderId: order.id }
       });
 
-      expect(returned_user_quiz).toBeNull();
-      expect(returned_user_answers).toEqual([]);
+      expect(returned_order).toBeNull();
+      expect(returned_order_products).toEqual([]);
     });
 
-    it('should return deleted user_quiz', async () => {
-      const res = await response(user_quiz.id, token);
+    it('should return deleted order', async () => {
+      const res = await response(order.id, token);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('id', user_quiz.id);
-      expect(res.body).toHaveProperty('score', 0.50);
-      expect(res.body).toHaveProperty('time', 20.00);
-      expect(res.body).toHaveProperty('quiz_id', quiz.id);
-      expect(res.body).toHaveProperty('user_id', user.id);
+      expect(res.body).toHaveProperty('id', order.id);
+      expect(res.body).toHaveProperty('userId', user.id);
+      expect(res.body).toHaveProperty('shippingOptionId', shipping_option.id);
     });
   });
 });

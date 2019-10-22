@@ -2,7 +2,7 @@ const { CartProduct, Product, User, Category, sequelize } = require('../../seque
 const createJWT = require('../../utilities/tokenUtility');
 const server = require('../../index');
 const request = require('supertest')(server);
-//UQ = > CP
+
 describe('/api/cart-products', () => {
   afterEach(async () => {
     await CartProduct.destroy({ where: {} });
