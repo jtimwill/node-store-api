@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
-const { Order, OrderProduct, CartProduct, sequelize } = require('../sequelize');
+const { Order, OrderProduct, CartProduct, Product, sequelize } = require('../sequelize');
 
 router.get('/', auth, async (req, res) => {
   const orders = await Order.findAll({
@@ -27,11 +27,13 @@ router.post('/', auth, async (req, res) => {
 
   return sequelize.transaction( t => {
     return order.save({ transaction: t }).then( o => {
-        if (req.body.order_products.length) { // if cart_products.length
-          // * Possible problem: product_id pointed to wrong product by client *
-          // cart_products.forEach
-          req.body.order_products.forEach( op => { op.order_id = o.id });
-          return OrderProduct.bulkCreate(req.body.order_product, { transaction: t });
+        if (cart_products.length) {
+          cart_products.forEach( cp => {
+            // Format the cart_product to match order product
+            cp.orderId = cp.id
+            cp.price = Product.findOne({ where: id: cp.productId });
+          });
+          return OrderProduct.bulkCreate(cart_products, { transaction: t });
         }
         return order;
       });
