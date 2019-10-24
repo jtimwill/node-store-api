@@ -17,29 +17,37 @@ router.get('/', auth, async (req, res) => {
 
 router.post('/', auth, async (req, res) => {
   let order = Order.build({
-    user_id: req.user.id,
-    shipping_option_id: req.body.shipping_option_id,
+    userId: req.user.id,
+    shippingOptionId: req.body.shippingOptionId,
   });
 
   const cart_products = await CartProduct.findAll({
-    where: { userId: user_id }
+    where: { userId: req.user.id }
   });
+
+  let order_products = [];
+  if (cart_products.length) {
+    cart_products.forEach(async cp => {
+      let product = await Product.findOne({ where: { id: cp.productId }});
+      order_products.push({
+        price: product.price,
+        quantity: cp.quantity,
+        productId: cp.productId
+      });
+    });
+  }
 
   return sequelize.transaction( t => {
     return order.save({ transaction: t }).then( o => {
-        if (cart_products.length) {
-          cart_products.forEach( cp => {
-            // Format the cart_product to match order product
-            cp.orderId = cp.id
-            cp.price = Product.findOne({ where: id: cp.productId });
-          });
-          return OrderProduct.bulkCreate(cart_products, { transaction: t });
+        if (order_products.length) {
+          for(let op of order_products) { op.orderId = o.id; }
+          return OrderProduct.bulkCreate(order_products, { transaction: t });
         }
         return order;
       });
     }).then( result => {
       // **** Empty Cart for current user ***
-      CartProduct.destroy({ where: { id: req.user.id }});
+      CartProduct.destroy({ where: { userId: req.user.id }});
       res.send(order);
     }).catch( err =>  {
       res.status(400).send(err);

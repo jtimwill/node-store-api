@@ -180,23 +180,32 @@ describe('/api/orders', () => {
 
     it('should save order and order_products if they are valid', async () => {
       const res = await response(order_object, token);
-      const user_quiz = await UserQuiz.findOne({ where: { time: 12.34 } });
-      const user_answer_1 = await UserAnswer.findOne({ where: { answer: "Moo!" } });
-      const user_answer_2 = await UserAnswer.findOne({ where: { answer: "Meow!" } });
+      const found_o = await Order.findOne({ where: { userId: order_object.userId } });
+      const op_1 = await OrderProduct.findOne({ where: { quantity: cart_product_1.quantity } });
+      const op_2 = await OrderProduct.findOne({ where: { quantity: cart_product_2.quantity } });
 
-      expect(user_quiz).toHaveProperty('id');
-      expect(user_quiz).toHaveProperty('score', 0.50);
-      expect(user_quiz).toHaveProperty('time', 12.34);
-      expect(user_quiz).toHaveProperty('quiz_id', quiz.id);
-      expect(user_quiz).toHaveProperty('user_id', user.id);
+      expect(found_o).toHaveProperty('id');
+      expect(found_o).toHaveProperty('userId', order_object.userId);
+      expect(found_o).toHaveProperty('shippingOptionId', order_object.shippingOptionId);
 
-      expect(user_answer_1).toHaveProperty('answer', 'Moo!');
-      expect(user_answer_1).toHaveProperty('correct', true);
-      expect(user_answer_1).toHaveProperty('question_id', question_1.id);
+      expect(op_1).toHaveProperty('productId', cart_product_1.productId);
+      expect(op_1).toHaveProperty('orderId', found_o.id);
+      expect(op_1).toHaveProperty('quantity', cart_product_1.quantity);
+      expect(op_1).toHaveProperty('price', product.price);
 
-      expect(user_answer_2).toHaveProperty('answer', 'Meow!');
-      expect(user_answer_2).toHaveProperty('correct', false);
-      expect(user_answer_2).toHaveProperty('question_id', question_2.id);
+      expect(op_2).toHaveProperty('productId', cart_product_2.productId);
+      expect(op_2).toHaveProperty('orderId', found_o.id);
+      expect(op_2).toHaveProperty('quantity', cart_product_2.quantity);
+      expect(op_1).toHaveProperty('price', product.price);
+    });
+
+    it('should empty cart if order is valid', async () => {
+      const res = await response(order_object, token);
+      const returned_order_products = await CartProduct.findAll({
+        where: { userId: user.id }
+      });
+
+      expect(returned_order_products).toEqual([]);
     });
 
     it('should return order if order is valid', async () => {
@@ -204,10 +213,8 @@ describe('/api/orders', () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('id');
-      expect(res.body).toHaveProperty('score', 0.50);
-      expect(res.body).toHaveProperty('time', 12.34);
-      expect(res.body).toHaveProperty('quiz_id', quiz.id);
-      expect(res.body).toHaveProperty('user_id', user.id);
+      expect(res.body).toHaveProperty('userId', order_object.userId);
+      expect(res.body).toHaveProperty('shippingOptionId', order_object.shippingOptionId);
     });
   });
 
