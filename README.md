@@ -48,7 +48,9 @@ Additional resources that helped me:
   * https://stackoverflow.com/questions/9198310/how-to-set-node-env-to-production-development-in-os-x
 
 ## App Structure
-
+<p align="center">
+  <img alt="Image of App Structure" src="https://raw.github.com/jtimwill/store-api/master/images/store-api-diagram.png" />
+</p>
 
 ## Entity Relationship Diagram
 <p align="center">
