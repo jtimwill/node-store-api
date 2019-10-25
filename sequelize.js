@@ -36,15 +36,21 @@ const OrderProduct = OrderProductModel(sequelize, Sequelize);
 const ShippingOption = ShippingOptionModel(sequelize, Sequelize);
 const Order = OrderModel(sequelize, Sequelize);
 // Create associations between models
-User.hasMany(CartProduct);
-User.hasMany(Order);
-User.hasMany(Review);
-Product.hasMany(Review, {onDelete: 'cascade'});
-OrderProduct.belongsTo(Product);
-CartProduct.belongsTo(Product);
-Category.hasMany(Product);
-ShippingOption.hasMany(Order);
-Order.hasMany(OrderProduct, {onDelete: 'cascade'});
+User.hasMany(CartProduct, { foreignKey: {allowNull: false }});
+User.hasMany(Order, { foreignKey: {allowNull: false }});
+User.hasMany(Review, { foreignKey: {allowNull: false }});
+Product.hasMany(Review, {
+  foreignKey: {allowNull: false },
+  onDelete: 'cascade'
+});
+OrderProduct.belongsTo(Product, { foreignKey: {allowNull: false }});
+CartProduct.belongsTo(Product); // { foreignKey: {allowNull: false }} creates bug
+Category.hasMany(Product, { foreignKey: {allowNull: false }});
+ShippingOption.hasMany(Order, { foreignKey: {allowNull: false }});
+Order.hasMany(OrderProduct, {
+  foreignKey: {allowNull: false },
+  onDelete: 'cascade'
+});
 
 // Create database tables
 sequelize.sync().then(() => {

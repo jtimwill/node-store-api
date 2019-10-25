@@ -8,7 +8,7 @@ const prefix = "/:productId/reviews";
 
 router.get(`${prefix}/`, [auth, findProduct], async (req, res) => {
   const reviews = await Review.findAll({
-    where: { product_id: req.params.productId }
+    where: { productId: req.params.productId }
   });
   res.send(reviews);
 });

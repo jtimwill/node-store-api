@@ -8,6 +8,7 @@ describe('/api/products', () => {
     await Product.destroy({ where: {} });
     await Category.destroy({ where: {} });
     await Review.destroy({ where: {} });
+    await User.destroy({ where: {} });
   });
 
   afterAll(async () => {
@@ -24,7 +25,12 @@ describe('/api/products', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: false });
+      user = await User.create({
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: '123456',
+        admin: false
+      });
       token = createJWT(user);
       category = await Category.create({ name: 'Soda' });
       product1 = await Product.create({
@@ -87,7 +93,12 @@ describe('/api/products', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: true });
+      user = await User.create({
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: '123456',
+        admin: true
+      });
       token = createJWT(user);
       category = await Category.create({ name: 'Soda' });
       product_object = {
@@ -172,7 +183,12 @@ describe('/api/products', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: true });
+      user = await User.create({
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: '123456',
+        admin: true
+      });
       token = createJWT(user);
       category = await Category.create({ name: 'Soda' });
       product1 = await Product.create({
@@ -254,7 +270,12 @@ describe('/api/products', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: true });
+      user = await User.create({
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: '123456',
+        admin: true
+      });
       token = createJWT(user);
       category = await Category.create({ name: 'Soda' });
       new_category = await Category.create({ name: 'Drink' });
@@ -362,7 +383,12 @@ describe('/api/products', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: true });
+      user = await User.create({
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: '123456',
+        admin: true
+      });
       token = createJWT(user);
       category = await Category.create({ name: 'Soda' });
       product = await Product.create({

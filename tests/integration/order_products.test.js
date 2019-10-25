@@ -3,7 +3,7 @@ const createJWT = require('../../utilities/tokenUtility');
 const server = require('../../index');
 const request = require('supertest')(server);
 
-describe('/:orderId/order-products/', () => {
+describe('/:orderId/order-products', () => {
   afterEach(async () => {
     await Order.destroy({ where: {} });
     await OrderProduct.destroy({ where: {} });
@@ -28,7 +28,12 @@ describe('/:orderId/order-products/', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: true });
+      user = await User.create({
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: '123456',
+        admin: true
+      });
       token = createJWT(user);
       category = await Category.create({ name: 'Soda' });
       product = await Product.create({
@@ -44,7 +49,7 @@ describe('/:orderId/order-products/', () => {
       });
       order = await Order.create({
         userId: user.id,
-        shippingOption_Id: shipping_option.id
+        shippingOptionId: shipping_option.id
       });
       order_product = await OrderProduct.create({
         orderId: order.id,
@@ -144,7 +149,12 @@ describe('/:orderId/order-products/', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: true });
+      user = await User.create({
+        username: 'bob',
+        email: 'bob@example.com',
+        password_digest: '123456',
+        admin: true
+      });
       token = createJWT(user);
       category = await Category.create({ name: 'Soda' });
       product = await Product.create({
@@ -160,7 +170,7 @@ describe('/:orderId/order-products/', () => {
       });
       order = await Order.create({
         userId: user.id,
-        shippingOption_Id: shipping_option.id
+        shippingOptionId: shipping_option.id
       });
 
       order_product = await OrderProduct.create({

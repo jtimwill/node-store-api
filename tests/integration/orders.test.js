@@ -1,6 +1,4 @@
-const { Order, OrderProduct, Product,
-        User, Category, ShippingOption, CartProduct,
-        sequelize } = require('../../sequelize');
+const { Order, OrderProduct, Product, User, Category, ShippingOption, CartProduct, sequelize } = require('../../sequelize');
 const createJWT = require('../../utilities/tokenUtility');
 const server = require('../../index');
 const request = require('supertest')(server);
@@ -105,7 +103,7 @@ describe('/api/orders', () => {
   describe('POST /', () => {
     let user, other_user, token, order, order_object, shipping_option,
         new_shipping_option, product, cart_product_1, cart_product_2,
-        other_cart_product;
+        other_cart_product, category;
 
     const response = async (object, jwt) => {
       return await request

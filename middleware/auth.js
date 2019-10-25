@@ -11,8 +11,8 @@ function authenticateUser(req, res, next) {
   else {
     try {
       const secret = config.get('jwt_private_key');
-      const decrypted_jwt = jwt.verify(token, secret);
-      req.user = decrypted_jwt;
+      const decoded = jwt.verify(token, secret);
+      req.user = decoded;
       next();
     }
     catch (ex) {

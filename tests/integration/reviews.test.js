@@ -25,7 +25,11 @@ describe('/api/products/:productId/reviews', () => {
     };
 
     beforeEach(async () => {
-      user = await User.create({ username: 'bob' , email: 'bob@example.com', password_digest: 123456 });
+      user = await User.create({
+        username: 'bob' ,
+        email: 'bob@example.com',
+        password_digest: 123456
+      });
       token = createJWT(user);
       const category = await Category.create({ name: 'Soda' });
       product = await Product.create({
@@ -34,7 +38,7 @@ describe('/api/products/:productId/reviews', () => {
         price: 2.99,
         small_image_path: "/",
         large_image_path: "/",
-        category_id: category.id,
+        categoryId: category.id,
       });
       await Review.bulkCreate([
         { productId: product.id, userId: user.id, title: 'Great', body: "b1", rating: 5 },
@@ -89,7 +93,7 @@ describe('/api/products/:productId/reviews', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: false });
+      user = await User.create({ username: 'bob' , email: 'bob@example.com', password_digest: 123456 });
       token = createJWT(user);
       const category = await Category.create({ name: 'Soda' });
       product = await Product.create({
@@ -98,11 +102,11 @@ describe('/api/products/:productId/reviews', () => {
         price: 2.99,
         small_image_path: "/",
         large_image_path: "/",
-        category_id: category.id,
+        categoryId: category.id,
       });
       review_object = {
-        product_id: product.id,
-        user_id: user.id,
+        productId: product.id,
+        userId: user.id,
         title: 'Great',
         body: "b1",
         rating: 5
@@ -172,7 +176,7 @@ describe('/api/products/:productId/reviews', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: false });
+      user = await User.create({ username: 'bob' , email: 'bob@example.com', password_digest: 123456 });
       token = createJWT(user);
       const category = await Category.create({ name: 'Soda' });
       product = await Product.create({
@@ -181,11 +185,11 @@ describe('/api/products/:productId/reviews', () => {
         price: 2.99,
         small_image_path: "/",
         large_image_path: "/",
-        category_id: category.id,
+        categoryId: category.id,
       });
       review = await Review.create({
-        product_id: product.id,
-        user_id: user.id,
+        productId: product.id,
+        userId: user.id,
         title: 'Great',
         body: "b1",
         rating: 5
@@ -249,7 +253,11 @@ describe('/api/products/:productId/reviews', () => {
     };
 
     beforeEach(async () => {
-      user = User.build({ admin: false });
+      user = await User.create({
+        username: 'bob' ,
+        email: 'bob@example.com',
+        password_digest: 123456
+      });
       token = createJWT(user);
       const category = await Category.create({ name: 'Soda' });
       product = await Product.create({
@@ -258,18 +266,18 @@ describe('/api/products/:productId/reviews', () => {
         price: 2.99,
         small_image_path: "/",
         large_image_path: "/",
-        category_id: category.id,
+        categoryId: category.id,
       });
       review = await Review.create({
-        product_id: product.id,
-        user_id: user.id,
+        productId: product.id,
+        userId: user.id,
         title: 'Great',
         body: "b1",
         rating: 5
       });
       review_object = {
-        product_id: product.id,
-        user_id: user.id,
+        productId: product.id,
+        userId: user.id,
         title: 'Terrible',
         body: "b3",
         rating: 1
@@ -350,7 +358,12 @@ describe('/api/products/:productId/reviews', () => {
     };
 
     beforeEach( async () => {
-      user = User.build({ admin: true });
+      user = await User.create({
+        username: 'bob' ,
+        email: 'bob@example.com',
+        password_digest: 123456,
+        admin: true
+      });
       token = createJWT(user);
       const category = await Category.create({ name: 'Soda' });
       product = await Product.create({
@@ -359,11 +372,11 @@ describe('/api/products/:productId/reviews', () => {
         price: 2.99,
         small_image_path: "/",
         large_image_path: "/",
-        category_id: category.id,
+        categoryId: category.id,
       });
       review = await Review.create({
-        product_id: product.id,
-        user_id: user.id,
+        productId: product.id,
+        userId: user.id,
         title: 'Great',
         body: "b1",
         rating: 5
