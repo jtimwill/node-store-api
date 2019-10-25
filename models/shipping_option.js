@@ -19,5 +19,5 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.FLOAT,
       allowNull: false
     }
-  }, {underscored: true});
+  }, {});
 };
