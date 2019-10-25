@@ -18,7 +18,7 @@ Additional resources that helped me:
 
 ## Entity Relationship Diagram
 <p align="center">
-  <img alt="Image of ERD" src="https://raw.github.com/jtimwill/store-api/master/images/store-erd.png"/>
+  <img alt="Image of ERD" src="https://raw.github.com/jtimwill/store-api/master/images/node-store-erd.png"/>
 </p>
 
 ## Routes and Resources
