@@ -5,7 +5,7 @@ const admin = require('../middleware/admin');
 const { findCategory } = require('../middleware/find');
 const { Product, Review, Category } = require('../sequelize');
 
-router.get('/', auth, async (req, res) => {
+router.get('/', async (req, res) => {
   const products = await Product.findAll({
     include: [{
       model: Review,

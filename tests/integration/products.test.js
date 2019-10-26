@@ -55,12 +55,12 @@ describe('/api/products', () => {
       ]);
     });
 
-    it('should return 401 if client not logged in', async () => {
-      token = '';
-      const res = await response(token);
-
-      expect(res.status).toBe(401);
-    });
+    // it('should return 401 if client not logged in', async () => {
+    //   token = '';
+    //   const res = await response(token);
+    //
+    //   expect(res.status).toBe(401);
+    // });
 
     it('should return all products and associated reviews (stat code 200)', async () => {
       const res = await response(token);
