@@ -32,7 +32,7 @@ router.post('/', [auth, admin, findCategory], async (req, res) => {
   }
 });
 
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', async (req, res) => {
   let product;
   const id = req.params.id;
 
