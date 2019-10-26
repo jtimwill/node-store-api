@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const config = require('config');
 require('express-async-errors');
+const helmet = require('helmet');
+const compression = require('compression')
 const cors = require('cors');
 
 const users = require('./routes/users');
@@ -16,6 +18,8 @@ const login = require('./routes/login');
 
 const error = require('./middleware/error');
 
+app.use(helmet());
+app.use(compression());
 app.use(cors());
 app.get('/api', (req, res) => {
   const url = "https://github.com/jtimwill/store-api";
