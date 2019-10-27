@@ -70,7 +70,7 @@ Additional resources that helped me:
 ### Products Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
 |---|---|---|---|---|
-/api/products|POST|create a new product||Yes|
+/api/products|POST|create a new product|Yes|Yes|
 /api/products|GET|return all products and reviews|No|No|
 /api/products/:id|GET|return a specific product and reviews|No|No|
 /api/product/:id|PUT|update a specific product|Yes|Yes|
