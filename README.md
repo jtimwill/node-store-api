@@ -60,7 +60,7 @@ Additional resources that helped me:
 ## Routes and Resources
 ### Users Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/users|POST|create a new user|No|No|
 /api/users|GET|return all users|Yes|Yes|
 /api/users/me|GET|return current user|Yes|No|
@@ -69,7 +69,7 @@ Additional resources that helped me:
 
 ### Products Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/products|POST|create a new product||Yes|
 /api/products|GET|return all products and reviews|No|No|
 /api/products/:id|GET|return a specific product and reviews|No|No|
@@ -78,7 +78,7 @@ Additional resources that helped me:
 
 ### Reviews Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/products/:productId/reviews|POST|create a new review|Yes|No|
 /api/products/:productId/reviews|GET|return all reviews|Yes|No|
 /api/products/:productId/reviews/:id|GET|return a specific review|Yes|No|
@@ -87,7 +87,7 @@ Additional resources that helped me:
 
 ### Category Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/categories|POST|create a new category|Yes|Yes|
 /api/categories/:id|GET|return a specific category|Yes|Yes|
 /api/categories|GET|return all categories|Yes|No|
@@ -96,7 +96,7 @@ Additional resources that helped me:
 
 ### Shipping Options Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/shipping_options|POST|create a new shipping option|Yes|Yes|
 /api/shipping_options/:id|GET|return a specific shipping option|Yes|No|
 /api/shipping_options|GET|return all shipping options|Yes|No|
@@ -105,7 +105,7 @@ Additional resources that helped me:
 
 ### Cart Products Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/cart_products|POST|add a cart_product|Yes|No|
 /api/cart_products|GET|return all cart_products|Yes|No|
 /api/cart_products/:id|PUT|update a specific cart_product|Yes|No|
@@ -113,7 +113,7 @@ Additional resources that helped me:
 
 ### Orders Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/orders|POST|Create a new order and associated order_products|Yes|No|
 /api/orders|GET|return all orders and associated order_products for current user|Yes|No|
 /api/orders/:id|GET|return a specific order and associated order_products for current user|Yes|No|
@@ -122,11 +122,11 @@ Additional resources that helped me:
 
 ### Order Products Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/orders/:orderId/order_products/:id|PUT|update a specific order_product|Yes|Yes|
 /api/orders/:orderId/order_products/:id|DELETE|delete a specific order_product|Yes|Yes|
 
 ### Login Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
-|---|---|---|---|
+|---|---|---|---|---|
 /api/login|POST|return a new JSON web token that can be used to identify the current user|No|No|
