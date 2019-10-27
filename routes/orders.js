@@ -16,42 +16,37 @@ router.get('/', auth, async (req, res) => {
 });
 
 router.post('/', auth, async (req, res) => {
-  let order = Order.build({
-    userId: req.user.id,
-    shippingOptionId: req.body.shippingOptionId,
-  });
-
   const cart_products = await CartProduct.findAll({
     where: { userId: req.user.id }
   });
 
-  let order_products = [];
-  if (cart_products.length) {
-    cart_products.forEach(async cp => {
-      let product = await Product.findOne({ where: { id: cp.productId }});
-      order_products.push({
-        price: product.price,
-        quantity: cp.quantity,
-        productId: cp.productId
-      });
-    });
+  if (!cart_products.length) {
+    res.status(404).send('Cart Empty');
   }
 
-  return sequelize.transaction( t => {
-    return order.save({ transaction: t }).then( o => {
-        if (order_products.length) {
-          for(let op of order_products) { op.orderId = o.id; }
-          return OrderProduct.bulkCreate(order_products, { transaction: t });
-        }
-        return order;
-      });
-    }).then( result => {
-      // **** Empty Cart for current user ***
-      CartProduct.destroy({ where: { userId: req.user.id }});
-      res.send(order);
-    }).catch( err =>  {
-      res.status(400).send(err);
+  let order_products = [];
+  cart_products.forEach(async cp => {
+    let product = await Product.findOne({ where: { id: cp.productId }});
+    order_products.push({
+      price: product.price,
+      quantity: cp.quantity,
+      productId: cp.productId
     });
+  });
+
+  try {
+    let order = await Order.create({
+      userId: req.user.id,
+      shippingOptionId: req.body.shippingOptionId
+    });
+    for(let op of order_products) { op.orderId = order.id;}
+    // Note: tried to use a transaction here. Didn't work
+    await OrderProduct.bulkCreate(order_products);
+    await CartProduct.destroy({ where: { userId: req.user.id }});
+    res.send(order);
+  } catch(err) {
+    res.status(400).send(err);
+  }
 });
 
 router.get('/:id', auth, async (req, res) => {
