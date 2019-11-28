@@ -97,19 +97,19 @@ Additional resources that helped me:
 ### Shipping Options Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
 |---|---|---|---|---|
-/api/shipping_options|POST|create a new shipping option|Yes|Yes|
-/api/shipping_options/:id|GET|return a specific shipping option|Yes|No|
-/api/shipping_options|GET|return all shipping options|Yes|No|
-/api/shipping_options/:id|PUT|update a specific shipping option|Yes|Yes|
-/api/shipping_options/:id|DELETE|delete a specific shipping option|Yes|Yes|
+/api/shipping-options|POST|create a new shipping option|Yes|Yes|
+/api/shipping-options/:id|GET|return a specific shipping option|Yes|No|
+/api/shipping-options|GET|return all shipping options|Yes|No|
+/api/shipping-options/:id|PUT|update a specific shipping option|Yes|Yes|
+/api/shipping-options/:id|DELETE|delete a specific shipping option|Yes|Yes|
 
 ### Cart Products Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
 |---|---|---|---|---|
-/api/cart_products|POST|add a cart_product|Yes|No|
-/api/cart_products|GET|return all cart_products|Yes|No|
-/api/cart_products/:id|PUT|update a specific cart_product|Yes|No|
-/api/cart_products/:id|DELETE|delete a specific cart_product|Yes|No|
+/api/cart-products|POST|add a cart_product|Yes|No|
+/api/cart-products|GET|return all cart_products|Yes|No|
+/api/cart-products/:id|PUT|update a specific cart_product|Yes|No|
+/api/cart-products/:id|DELETE|delete a specific cart_product|Yes|No|
 
 ### Orders Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
@@ -123,8 +123,8 @@ Additional resources that helped me:
 ### Order Products Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
 |---|---|---|---|---|
-/api/orders/:orderId/order_products/:id|PUT|update a specific order_product|Yes|Yes|
-/api/orders/:orderId/order_products/:id|DELETE|delete a specific order_product|Yes|Yes|
+/api/orders/:orderId/order-products/:id|PUT|update a specific order_product|Yes|Yes|
+/api/orders/:orderId/order-products/:id|DELETE|delete a specific order_product|Yes|Yes|
 
 ### Login Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|
