@@ -35,6 +35,7 @@ app.use('/api/cart-products', cart_products);
 app.use('/api/orders', orders);
   app.use('/api/orders', order_products); // Nested routes
 app.use('/api/login', login);
+app.use(express.static('public'));
 
 app.use(error);
 

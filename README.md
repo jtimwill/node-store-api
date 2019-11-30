@@ -29,6 +29,8 @@ The basic technology stack is:
 13. ``` $ npm update ``` # update packages
 
 Additional resources that helped me:
+* Express Static Files:
+  * https://expressjs.com/en/starter/static-files.html
 * Sequelize Setup:
   * http://docs.sequelizejs.com
   * https://www.codementor.io/mirko0/how-to-use-sequelize-with-node-and-express-i24l67cuz
