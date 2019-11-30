@@ -27,12 +27,12 @@ describe('/api/categories', () => {
       await Category.bulkCreate([{ name: 'books' }, { name: 'movies' }]);
     });
 
-    it('should return 401 if client not logged in', async () => {
-      token = '';
-      const res = await response(token);
+    // it('should return 401 if client not logged in', async () => {
+    //   token = '';
+    //   const res = await response(token);
 
-      expect(res.status).toBe(401);
-    });
+    //   expect(res.status).toBe(401);
+    // });
 
     it('should return all categories (stat code 200)', async () => {
       const res = await response(token);
@@ -59,20 +59,20 @@ describe('/api/categories', () => {
       category = await Category.create({ name: 'School' });
     });
 
-    it('should return 401 if client not logged in', async () => {
-      token = '';
-      const res = await response(category.id, token);
+    // it('should return 401 if client not logged in', async () => {
+    //   token = '';
+    //   const res = await response(category.id, token);
 
-      expect(res.status).toBe(401);
-    });
+    //   expect(res.status).toBe(401);
+    // });
 
-    it('should return 403 if user is not admin', async () => {
-      user = User.build({ admin: false });
-      token = createJWT(user);
-      const res = await response(category.id, token);
+    // it('should return 403 if user is not admin', async () => {
+    //   user = User.build({ admin: false });
+    //   token = createJWT(user);
+    //   const res = await response(category.id, token);
 
-      expect(res.status).toBe(403);
-    });
+    //   expect(res.status).toBe(403);
+    // });
 
     it('should return 404 if invalid category ID', async () => {
       const category_id = 'id';

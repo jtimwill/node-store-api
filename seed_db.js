@@ -47,7 +47,7 @@ const config = require('config');
     });
 
     // Create Categories
-    const food = await Category.create({ name: 'Sports' });
+    const food = await Category.create({ name: 'Food' });
     const transportation = await Category.create({ name: 'Transportation' });
 
     // Shipping_options
