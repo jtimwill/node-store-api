@@ -47,9 +47,6 @@ router.get('/me', auth, async (req, res) => {
       { model: Review, where: { userId: req.user.id }, required: false },
     ]
   });
-  // Todo:
-  // 1. Include orders associated with user
-  // 2. Include reviews associated with user
   res.send(user);
 });
 

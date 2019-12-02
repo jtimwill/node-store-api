@@ -186,7 +186,7 @@ describe('/api/users', () => {
       expect(res.body.reviews.some(e => e.body === 'b3')).toBeFalsy();
       expect(res.body.reviews.some(e => e.rating === 5)).toBeTruthy();
       expect(res.body.reviews.some(e => e.rating === 1)).toBeTruthy();
-      expect(res.body.reviews.some(e => e.rating === 3)).toBeTruthy();
+      expect(res.body.reviews.some(e => e.rating === 3)).toBeFalsy();
     });
   });
 
