@@ -55,13 +55,16 @@ router.put(`${prefix}/:id`, [auth, findProduct], async (req, res) => {
   }
 });
 
-router.delete(`${prefix}/:id`, [auth, admin, findProduct], async (req, res) => {
+router.delete(`${prefix}/:id`, [auth, findProduct], async (req, res) => {
   const review = await Review.findOne({ where: { id: req.params.id }});
   if (!review) {
     return res.status(404).send('Review with submitted ID not found');
+  } else if (req.user.id !== review.userId && !req.user.admin) {
+    return res.status(403).send('Forbidden');
+  } else{
+    await review.destroy();
+    res.send(review);
   }
-  await review.destroy();
-  res.send(review);
 });
 
 module.exports = router;

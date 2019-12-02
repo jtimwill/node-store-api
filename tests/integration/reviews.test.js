@@ -362,9 +362,17 @@ describe('/api/products/:productId/reviews', () => {
         username: 'bob' ,
         email: 'bob@example.com',
         password_digest: 123456,
+        admin: false
+      });
+      admin = await User.create({
+        username: 'admin' ,
+        email: 'admin@example.com',
+        password_digest: 123456,
         admin: true
       });
-      token = createJWT(user);
+
+      admin_token = createJWT(admin);
+      user_token = createJWT(user);
       const category = await Category.create({ name: 'Soda' });
       product = await Product.create({
         title: 'Pepsi',
@@ -374,70 +382,82 @@ describe('/api/products/:productId/reviews', () => {
         large_image_path: "/",
         categoryId: category.id,
       });
-      review = await Review.create({
+      user_review = await Review.create({
         productId: product.id,
         userId: user.id,
         title: 'Great',
         body: "b1",
         rating: 5
       });
+      admin_review = await Review.create({
+        productId: product.id,
+        userId: admin.id,
+        title: 'Meh',
+        body: "b2",
+        rating: 3
+      });
     });
 
     it('should return 401 if client not logged in', async () => {
       token = '';
-      const res = await response(product.id, review.id, token);
+      const res = await response(product.id, user_review.id, token);
 
       expect(res.status).toBe(401);
     });
 
-    it('should return 403 if user is not admin', async () => {
-      user = User.build({ admin: false });
-      token = createJWT(user);
-      const res = await response(product.id, review.id, token);
-
-      expect(res.status).toBe(403);
-    });
-
     it('should return 400 if invalid product ID ', async () => {
       const product_id = 'id';
-      const res = await response(product_id, review.id, token);
+      const res = await response(product_id, user_review.id, user_token);
 
       expect(res.status).toBe(400);
     });
 
     it('should return 400 if product ID valid but product ID not in DB', async () => {
       const product_id = '10000';
-      const res = await response(product_id, review.id, token);
+      const res = await response(product_id, user_review.id, user_token);
 
       expect(res.status).toBe(400);
     });
 
     it('should return 404 if invalid review ID', async () => {
       const review_id = 'id';
-      const res = await response(product.id, review_id, token);
+      const res = await response(product.id, review_id, user_token);
 
       expect(res.status).toBe(404);
     });
 
     it('should return 404 if review ID valid but review ID not in DB', async () => {
       const review_id = '100000';
-      const res = await response(product.id, review_id, token);
+      const res = await response(product.id, review_id, user_token);
 
       expect(res.status).toBe(404);
     });
 
-    it('should delete review if input is valid', async () => {
-      const res = await response(product.id, review.id, token);
-      const result = await Review.findOne({ where: { id: review.id } });
+    it('should return 403 if user is not admin and review is not theirs', async () => {
+      const res = await response(product.id, admin_review.id, user_token);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('should delete review if input is valid and review belongs to user', async () => {
+      const res = await response(product.id, user_review.id, user_token);
+      const result = await Review.findOne({ where: { id: user_review.id } });
+
+      expect(result).toBeNull();
+    });
+
+    it('should delete review if input is valid, review does not belong to user but user is an admin', async () => {
+      const res = await response(product.id, user_review.id, admin_token);
+      const result = await Review.findOne({ where: { id: user_review.id } });
 
       expect(result).toBeNull();
     });
 
     it('should return deleted review', async () => {
-      const res = await response(product.id, review.id, token);
+      const res = await response(product.id, user_review.id, user_token);
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('id', review.id);
+      expect(res.body).toHaveProperty('id', user_review.id);
       expect(res.body).toHaveProperty('title', 'Great');
       expect(res.body).toHaveProperty('body', 'b1');
       expect(res.body).toHaveProperty('rating', 5);

@@ -1,4 +1,4 @@
-const { User, sequelize } = require('../../sequelize');
+const { User, Review, Product, Category, sequelize } = require('../../sequelize');
 const server = require('../../index');
 const request = require('supertest')(server);
 const createJWT = require('../../utilities/tokenUtility');
@@ -6,6 +6,9 @@ const createJWT = require('../../utilities/tokenUtility');
 describe('/api/users', () => {
   afterEach(async () => {
     await User.destroy({ where: {} });
+    await Product.destroy({ where: {} });
+    await Review.destroy({ where: {} });
+    await Category.destroy({ where: {} });
   });
 
   afterAll(async () => {
@@ -126,6 +129,35 @@ describe('/api/users', () => {
         password_digest: '123456'
       });
       token = createJWT(user);
+
+      other_user = await User.create({
+        username: 'seth',
+        email: 'seth@example.com',
+        password_digest: '123456',
+      });
+
+      category = await Category.create({ name: 'Soda' });
+      product1 = await Product.create({
+        title: 'Pepsi',
+        description: 'Pepsi Soda',
+        price: 2.99,
+        small_image_path: "/",
+        large_image_path: "/",
+        categoryId: category.id,
+      });
+      product2 = await Product.create({
+        title: 'Sprite',
+        description: 'Sprite Soda',
+        price: 2.49,
+        small_image_path: "/",
+        large_image_path: "/",
+        categoryId: category.id,
+      });
+      await Review.bulkCreate([
+        { productId: product1.id, userId: user.id, title: 'Great', body: "b1", rating: 5 },
+        { productId: product1.id, userId: user.id, title: 'Bad', body: "b2", rating: 1 },
+        { productId: product2.id, userId: other_user.id, title: 'Meh', body: "b3", rating: 3 }
+      ]);
     });
 
 
@@ -136,12 +168,25 @@ describe('/api/users', () => {
       expect(res.status).toBe(401);
     });
 
-    it('should return specific user if valid ID', async () => {
+    it('should return specific user and associated reviews and orders if valid ID', async () => {
       const res = await response(token);
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('username', user.username);
       expect(res.body).toHaveProperty('email', user.email);
+
+      expect(res.body.reviews.length).toBe(2);
+      expect(res.body.reviews.some(e => e.userId === user.id)).toBeTruthy();
+      expect(res.body.reviews.some(e => e.userId === other_user.id)).toBeFalsy();
+      expect(res.body.reviews.some(e => e.title === 'Great')).toBeTruthy();
+      expect(res.body.reviews.some(e => e.title === 'Bad')).toBeTruthy();
+      expect(res.body.reviews.some(e => e.title === 'Meh')).toBeFalsy();
+      expect(res.body.reviews.some(e => e.body === 'b1')).toBeTruthy();
+      expect(res.body.reviews.some(e => e.body === 'b2')).toBeTruthy();
+      expect(res.body.reviews.some(e => e.body === 'b3')).toBeFalsy();
+      expect(res.body.reviews.some(e => e.rating === 5)).toBeTruthy();
+      expect(res.body.reviews.some(e => e.rating === 1)).toBeTruthy();
+      expect(res.body.reviews.some(e => e.rating === 3)).toBeTruthy();
     });
   });
 

@@ -65,7 +65,7 @@ Additional resources that helped me:
 |---|---|---|---|---|
 /api/users|POST|create a new user|No|No|
 /api/users|GET|return all users|Yes|Yes|
-/api/users/me|GET|return current user|Yes|No|
+/api/users/me|GET|return current user and associated reviews|Yes|No|
 /api/users/me|PUT|update current user|Yes|No|
 /api/users/:id|DELETE|delete a user|Yes|Yes|
 
@@ -85,7 +85,7 @@ Additional resources that helped me:
 /api/products/:productId/reviews|GET|return all reviews|Yes|No|
 /api/products/:productId/reviews/:id|GET|return a specific review|Yes|No|
 /api/products/:productId/reviews/:id|PUT|update a specific review|Yes|No|
-/api/products/:productId/reviews/:id|DELETE|delete a specific review|Yes|No|
+/api/products/:productId/reviews/:id|DELETE|delete a specific review|Yes|No*|
 
 ### Category Resource
 |URL|HTTP verb|Result|Include JWT?|Admin only?|

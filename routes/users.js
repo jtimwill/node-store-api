@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { User } = require('../sequelize');
+const { User, Review } = require('../sequelize');
 const bcrypt = require('bcrypt');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
@@ -42,7 +42,10 @@ router.post('/', async (req, res) => {
 router.get('/me', auth, async (req, res) => {
   const user = await User.findOne({
     where: { id: req.user.id},
-    attributes: { exclude: ['password_digest', 'created_at', 'updated_at'] }
+    attributes: { exclude: ['password_digest', 'created_at', 'updated_at'] },
+    include: [
+      { model: Review, where: { userId: req.user.id }, required: false },
+    ]
   });
   // Todo:
   // 1. Include orders associated with user
