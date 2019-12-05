@@ -14,7 +14,13 @@ router.get(`${prefix}/`, [auth, findProduct], async (req, res) => {
 });
 
 router.post(`${prefix}/`, [auth, findProduct], async (req, res) => {
-  const review = await Review.findOne({ where: { userId: req.user.id }});
+  const review = await Review.findOne(
+    { where:
+      {
+        userId: req.user.id,
+        productId: req.params.productId
+      }
+    });
   if (review) {
     return res.status(403).send('Product already reviewed');
   }
