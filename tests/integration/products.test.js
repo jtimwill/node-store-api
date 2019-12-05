@@ -341,11 +341,11 @@ describe('/api/products', () => {
       expect(res.status).toBe(400);
     });
 
-    it('should return 400 if product is invalid', async () => {
-      updated_product = { categoryId: new_category.id };
-      const res = await response(updated_product, token, product.id);
-      expect(res.status).toBe(400);
-    });
+    // it('should return 400 if product is invalid', async () => {
+    //   updated_product = { categoryId: new_category.id };
+    //   const res = await response(updated_product, token, product.id);
+    //   expect(res.status).toBe(400);
+    // });
 
     it('should update product if input is valid', async () => {
       const res = await response(updated_product, token, product.id);

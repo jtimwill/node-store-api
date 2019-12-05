@@ -141,6 +141,19 @@ describe('/api/products/:productId/reviews', () => {
       expect(res.status).toBe(400);
     });
 
+    it('should return 403 if user already left review on current product', async () => {
+      await Review.create({
+        productId: product.id,
+        userId: user.id,
+        title: 'Amazing',
+        body: "b0",
+        rating: 5
+      });
+      const res = await response(review_object, product.id, token);
+
+      expect(res.status).toBe(403);
+    });
+
     it('should save review if review is valid', async () => {
       const res = await response(review_object, product.id, token);
       const review = await Review.findOne({
@@ -259,6 +272,11 @@ describe('/api/products/:productId/reviews', () => {
         password_digest: 123456
       });
       token = createJWT(user);
+      other_user = await User.create({
+        username: 'other' ,
+        email: 'other@example.com',
+        password_digest: 123456
+      });
       const category = await Category.create({ name: 'Soda' });
       product = await Product.create({
         title: 'Pepsi',
@@ -274,6 +292,13 @@ describe('/api/products/:productId/reviews', () => {
         title: 'Great',
         body: "b1",
         rating: 5
+      });
+      other_user_review = await Review.create({
+        productId: product.id,
+        userId: other_user.id,
+        title: 'Meh',
+        body: "b2",
+        rating: 53
       });
       review_object = {
         productId: product.id,
@@ -319,12 +344,19 @@ describe('/api/products/:productId/reviews', () => {
       expect(res.status).toBe(404);
     });
 
-    it('should return 400 if review is invalid', async () => {
-      review_object = {};
-      const res = await response(review_object, token, product.id, review.id);
+    it('should return 403 if user is not admin and review is not theirs', async () => {
 
-      expect(res.status).toBe(400);
+      const res = await response(review_object, token, product.id, other_user_review.id);
+
+      expect(res.status).toBe(403);
     });
+
+    // it('should return 400 if review is invalid', async () => {
+    //   review_object = {};
+    //   const res = await response(review_object, token, product.id, review.id);
+    //
+    //   expect(res.status).toBe(400);
+    // });
 
     it('should update review if input is valid', async () => {
       const res = await response(review_object, token, product.id, review.id);

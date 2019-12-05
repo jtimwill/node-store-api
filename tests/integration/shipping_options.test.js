@@ -208,12 +208,12 @@ describe('/api/shipping-options', () => {
       expect(res.status).toBe(404);
     });
 
-    it('should return 400 if shipping_option is invalid', async () => {
-      const shipping_option_object = {};
-      const res = await response(shipping_option_object, token, shipping_option.id);
-
-      expect(res.status).toBe(400);
-    });
+    // it('should return 400 if shipping_option is invalid', async () => {
+    //   const shipping_option_object = {};
+    //   const res = await response(shipping_option_object, token, shipping_option.id);
+    //
+    //   expect(res.status).toBe(400);
+    // });
 
     it('should update shipping_option if input is valid', async () => {
       const res = await response(shipping_option_object, token, shipping_option.id);

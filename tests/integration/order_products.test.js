@@ -109,12 +109,12 @@ describe('/:orderId/order-products', () => {
       expect(res.status).toBe(400);
     });
 
-    it('should return 400 if order_product is invalid', async () => {
-      updated_order_product = {};
-      const res = await response(updated_order_product, token, order.id, order_product.id);
-
-      expect(res.status).toBe(400);
-    });
+    // it('should return 400 if order_product is invalid', async () => {
+    //   updated_order_product = {};
+    //   const res = await response(updated_order_product, token, order.id, order_product.id);
+    //
+    //   expect(res.status).toBe(400);
+    // });
 
     it('should update order_product if input is valid', async () => {
       const res = await response(updated_order_product, token, order.id, order_product.id);

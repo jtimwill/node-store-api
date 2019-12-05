@@ -14,6 +14,11 @@ router.get(`${prefix}/`, [auth, findProduct], async (req, res) => {
 });
 
 router.post(`${prefix}/`, [auth, findProduct], async (req, res) => {
+  const review = await Review.findOne({ where: { userId: req.user.id }});
+  if (review) {
+    return res.status(403).send('Product already reviewed');
+  }
+
   try {
     const review = await Review.create({
       userId: req.user.id,
@@ -40,7 +45,10 @@ router.put(`${prefix}/:id`, [auth, findProduct], async (req, res) => {
   const review = await Review.findOne({ where: { id: req.params.id }});
   if (!review) {
     return res.status(404).send('Review with submitted ID not found');
+  } else if (req.user.id !== review.userId && !req.user.admin) {
+    return res.status(403).send('Forbidden');
   }
+
   try {
     const updated_review = await review.update({
       userId: req.user.id,
@@ -61,7 +69,7 @@ router.delete(`${prefix}/:id`, [auth, findProduct], async (req, res) => {
     return res.status(404).send('Review with submitted ID not found');
   } else if (req.user.id !== review.userId && !req.user.admin) {
     return res.status(403).send('Forbidden');
-  } else{
+  } else {
     await review.destroy();
     res.send(review);
   }

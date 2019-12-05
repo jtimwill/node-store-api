@@ -197,12 +197,12 @@ describe('/api/categories', () => {
       expect(res.status).toBe(404);
     });
 
-    it('should return 400 if category is invalid', async () => {
-      const category_object = {};
-      const res = await response(category_object, token, category.id);
-
-      expect(res.status).toBe(400);
-    });
+    // it('should return 400 if category is invalid', async () => {
+    //   const category_object = {};
+    //   const res = await response(category_object, token, category.id);
+    //
+    //   expect(res.status).toBe(400);
+    // });
 
     it('should update category if input is valid', async () => {
       const res = await response(category_object, token, category.id);

@@ -280,12 +280,12 @@ describe('/api/cart-products', () => {
       expect(res.status).toBe(404);
     });
 
-    it('should return 400 if cart_product is invalid', async () => {
-      cart_product_object = { productId: product.id };
-      const res = await response(cart_product_object, cart_product.id, token);
-
-      expect(res.status).toBe(400);
-    });
+    // it('should return 400 if cart_product is invalid', async () => {
+    //   cart_product_object = { productId: product.id };
+    //   const res = await response(cart_product_object, cart_product.id, token);
+    //
+    //   expect(res.status).toBe(400);
+    // });
 
     it('should update cart_product if input is valid', async () => {
       const res = await response(cart_product_object, cart_product.id, token);
